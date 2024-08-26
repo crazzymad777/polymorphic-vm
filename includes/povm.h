@@ -1,7 +1,38 @@
 #ifndef POVM_H
 #define POVM_H
 
-int povm_execute(FILE* fd, int64_t* stack, int32_t* types);
+#include <inttypes.h>
+#include <stdbool.h>
+
+#if __has_include(<uchar.h>)
+	#include <uchar.h>
+#else
+	typedef uint_least32_t char32_t;
+	typedef uint64_t size_t;
+	#define MB_LEN_MAX 6
+	#define UCHAR_FALLBACK 1
+#endif
+
+#define LAMBDA_COMPARE_BOOLEAN_TO_INTEGER 1
+#define LAMBDA_COMPARE_BOOLEAN_TO_FLOATING 1
+
+union datum {
+    bool boolean;
+    int8_t i8;
+    int16_t i16;
+    int32_t i32;
+    int64_t i64;
+    uint8_t u8;
+    uint16_t u16;
+    uint32_t u32;
+    uint64_t u64;
+    float f32;
+    double f64;
+    // const char* cstring;
+    char32_t codepoint;
+};
+
+int povm_execute(FILE* fd, union datum* stack, int32_t* types);
 
 #define COMMAND_PUSH_ROOT_STACK 0x01
 #define COMMAND_PUSH 0x02 // type:value
