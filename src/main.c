@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
 		stack_size = 4096;
 	}
 
-	union datum stack[stack_size / 8];
+	union udatum stack[stack_size / 8];
 	int32_t types[stack_size / 8];
 
 	int exit_code = povm_execute(fd, stack, types);

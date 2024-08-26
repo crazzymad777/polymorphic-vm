@@ -4,15 +4,15 @@
 #include <povm.h>
 
 
-void datum_to_string(enum datum_type type, union datum datum, char* buffer, int siz);
+void udatum_to_string(enum datum_type type, union udatum datum, char* buffer, int siz);
 static size_t codepoint_to_utf8(unsigned char *const buffer, const char32_t code);
-int povm_execute_command(FILE* fd, union datum* stack, int32_t* types);
+int povm_execute_command(FILE* fd, union udatum* stack, int32_t* types);
 
 
 FILE* base_fd;
 void* base_pointer;
 
-int povm_execute(FILE* fd, union datum* stack, int32_t* types) {
+int povm_execute(FILE* fd, union udatum* stack, int32_t* types) {
     base_fd = fd;
     base_pointer = stack;
     while (!feof(fd)) {
@@ -28,7 +28,7 @@ int povm_execute(FILE* fd, union datum* stack, int32_t* types) {
     return 0;
 }
 
-int povm_execute_command(FILE* fd, union datum* stack, int32_t* types) {
+int povm_execute_command(FILE* fd, union udatum* stack, int32_t* types) {
     int c = fgetc(fd);
     int64_t* sp = &stack->i64;
 	if (c != EOF) {
@@ -69,7 +69,7 @@ int povm_execute_command(FILE* fd, union datum* stack, int32_t* types) {
             *stack = *(stack - 1);
         } else if (c == COMMAND_PRINT) {
             char buffer[32];
-            datum_to_string(*types, *stack, buffer, 32);
+            udatum_to_string(*types, *stack, buffer, 32);
             printf("%s", buffer);
         } else {
 			fprintf(stderr, "Polymorhpic VM halt!\n");
@@ -80,7 +80,7 @@ int povm_execute_command(FILE* fd, union datum* stack, int32_t* types) {
     return 0;
 }
 
-void datum_to_string(enum datum_type type, union datum datum, char* buffer, int siz) {
+void udatum_to_string(enum datum_type type, union udatum datum, char* buffer, int siz) {
     if (type == VOID) {
         snprintf(buffer, siz, "");
     }
