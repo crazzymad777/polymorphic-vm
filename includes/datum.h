@@ -149,7 +149,7 @@ struct datum datum_cast_to_unsigned_integer(struct datum d, int override_size);
 struct datum datum_cast_to_signed_integer(struct datum d, int override_size);
 
 // Auxiliary functions
-const char* datum_get_type(struct datum datum);
+const char* datum_get_type(enum datum_type datum);
 void datum_to_string(struct datum datum, char* buffer, int siz);
 struct datum datum_upgrade_precision(struct datum datum);
 

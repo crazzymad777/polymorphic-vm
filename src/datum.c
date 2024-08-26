@@ -175,7 +175,7 @@ struct datum datum_upgrade_precision(struct datum datum) {
     return datum_void();
 }
 
-const char* datum_get_type(struct datum datum) {
+/* const char* datum_get_type(struct datum datum) {
     static const char* types_str[] = {
         [VOID] = "void",
         [BOOLEAN] = "bool",
@@ -192,6 +192,25 @@ const char* datum_get_type(struct datum datum) {
         [CODEPOINT] = "char"
     };
     return types_str[datum.type];
+} */
+
+const char* datum_get_type(enum datum_type type) {
+    static const char* types_str[] = {
+        [VOID] = "void",
+        [BOOLEAN] = "bool",
+        [I8] = "i8",
+        [I16] = "i16",
+        [I32] = "i32",
+        [I64] = "i64",
+        [U8] = "u8",
+        [U16] = "u16",
+        [U32] = "u32",
+        [U64] = "u64",
+        [F32] = "f32",
+        [F64] = "f64",
+        [CODEPOINT] = "char"
+    };
+    return types_str[type];
 }
 
 __attribute__((visibility ("hidden")))

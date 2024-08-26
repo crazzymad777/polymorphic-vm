@@ -3,6 +3,14 @@
 
 #include <datum.h>
 
+struct povm_state {
+    FILE* base_fd;
+    void* base_pointer;
+    FILE* fd;
+    union udatum* stack;
+    int32_t* types;
+};
+
 int povm_execute(FILE* fd, union udatum* stack, int32_t* types);
 
 #define COMMAND_PUSH_ROOT_STACK 0x01
@@ -31,6 +39,8 @@ int povm_execute(FILE* fd, union udatum* stack, int32_t* types);
 #define COMMAND_PRINT 0x18
 #define COMMAND_READ 0x19 // read text from stdin and determine type
 #define COMMAND_FEED 0x1a // type
+
+#define COMMAND_DEBUG_PRINT 0x1b
 
 #define ERROR_UNIMPLEMENTED_OPCODE -5
 #define ERROR_UNKNOWN_OPCODE -4
