@@ -1,7 +1,9 @@
+#include <stdint.h>
+#include <string.h>
 #include <stdio.h>
 #include <povm.h>
 
-int main() {
+int main(int argc, char* argv[]) {
 	// lambda lib and simple stack VM would be base for the great polymorphic (stack virtual) machine
 	//int matrix = 0;
 
@@ -48,9 +50,10 @@ int main() {
 		stack_size = 4096;
 	}
 
-	char stack[stack_size];
+	int64_t stack[stack_size / 8];
+	int32_t types[stack_size / 8];
 
-	int exit_code = povm_execute(fd, stack);
+	int exit_code = povm_execute(fd, stack, types);
 
 	if (stdin != fd) {
 		fclose(fd);
