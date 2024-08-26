@@ -3,11 +3,7 @@
 #include <stdio.h>
 #include <povm.h>
 
-
-void udatum_to_string(enum datum_type type, union udatum datum, char* buffer, int siz);
-static size_t codepoint_to_utf8(unsigned char *const buffer, const char32_t code);
 int povm_execute_command(FILE* fd, union udatum* stack, int32_t* types);
-
 
 FILE* base_fd;
 void* base_pointer;
@@ -67,70 +63,26 @@ int povm_execute_command(FILE* fd, union udatum* stack, int32_t* types) {
             types += 1;
             *types = *(types - 1);
             *stack = *(stack - 1);
+        } else if (c == COMMAND_ADD) {
+            struct result r = datum_add(povm_datum(*(types-1), *(stack-1)), povm_datum(*(types), *stack));
+            if (r.type == RESULT) {
+                stack -= 1;
+                types -= 1;
+                *types = r.datum.type;
+                *sp = r.datum.i64;
+            } else {
+                fprintf(stderr, "Polymorhpic VM halt!\n");
+                fprintf(stderr, "Error! Datum error: 0x%x\n", r.error_code);
+            }
         } else if (c == COMMAND_PRINT) {
             char buffer[32];
-            udatum_to_string(*types, *stack, buffer, 32);
+            datum_to_string(povm_datum(*types, *stack), buffer, 32);
             printf("%s", buffer);
         } else {
 			fprintf(stderr, "Polymorhpic VM halt!\n");
 			fprintf(stderr, "Error! Unknown opcode: 0x%x\n", c);
 			return ERROR_UNKNOWN_OPCODE;
 		}
-    }
-    return 0;
-}
-
-void udatum_to_string(enum datum_type type, union udatum datum, char* buffer, int siz) {
-    if (type == VOID) {
-        snprintf(buffer, siz, "");
-    }
-    else if (type == BOOLEAN) {
-        snprintf(buffer, siz, "%s", datum.boolean ? "true" : "false");
-    }
-    else if (type == I8) {snprintf(buffer, siz, "%d", datum.i8); return;}
-    else if (type == I16) {snprintf(buffer, siz, "%d", datum.i16); return;}
-    else if (type == I32) {snprintf(buffer, siz, "%d", datum.i32); return;}
-    else if (type == I64) {snprintf(buffer, siz, "%d", datum.i64); return;}
-    else if (type == U8) {snprintf(buffer, siz, "%d", datum.u8); return;}
-    else if (type == U16) {snprintf(buffer, siz, "%d", datum.u16); return;}
-    else if (type == U32) {snprintf(buffer, siz, "%d", datum.u32); return;}
-    else if (type == U64) {snprintf(buffer, siz, "%d", datum.u64); return;}
-    else if (type == F32) {snprintf(buffer, siz, "%f", datum.f32); return;}
-    else if (type == F64) {snprintf(buffer, siz, "%f", datum.f64); return;}
-    else if (type == CODEPOINT) {
-        char buf[MB_LEN_MAX + 1] = {0};
-		int sz = codepoint_to_utf8(buf, datum.codepoint);
-		buf[sz] = '\0';
-        snprintf(buffer, siz, "%s", buf);
-    } else {
-        snprintf(buffer, siz, "");
-    }
-}
-
-__attribute__((visibility ("hidden")))
-size_t codepoint_to_utf8(unsigned char *const buffer, const char32_t code)
-{
-    if (code <= 0x7F) {
-        buffer[0] = code;
-        return 1;
-    }
-    if (code <= 0x7FF) {
-        buffer[0] = 0xC0 | (code >> 6);            /* 110xxxxx */
-        buffer[1] = 0x80 | (code & 0x3F);          /* 10xxxxxx */
-        return 2;
-    }
-    if (code <= 0xFFFF) {
-        buffer[0] = 0xE0 | (code >> 12);           /* 1110xxxx */
-        buffer[1] = 0x80 | ((code >> 6) & 0x3F);   /* 10xxxxxx */
-        buffer[2] = 0x80 | (code & 0x3F);          /* 10xxxxxx */
-        return 3;
-    }
-    if (code <= 0x10FFFF) {
-        buffer[0] = 0xF0 | (code >> 18);           /* 11110xxx */
-        buffer[1] = 0x80 | ((code >> 12) & 0x3F);  /* 10xxxxxx */
-        buffer[2] = 0x80 | ((code >> 6) & 0x3F);   /* 10xxxxxx */
-        buffer[3] = 0x80 | (code & 0x3F);          /* 10xxxxxx */
-        return 4;
     }
     return 0;
 }
