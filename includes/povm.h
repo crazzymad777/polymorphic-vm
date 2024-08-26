@@ -16,6 +16,23 @@
 #define LAMBDA_COMPARE_BOOLEAN_TO_INTEGER 1
 #define LAMBDA_COMPARE_BOOLEAN_TO_FLOATING 1
 
+// List of types
+enum datum_type {
+VOID,
+BOOLEAN,
+I8,
+I16,
+I32,
+I64,
+U8,
+U16,
+U32,
+U64,
+F32,
+F64,
+CODEPOINT
+};
+
 union datum {
     bool boolean;
     int8_t i8;
