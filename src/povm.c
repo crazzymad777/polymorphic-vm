@@ -68,7 +68,10 @@ int povm_execute_command(FILE* fd, union datum* stack, int32_t* types) {
             *types = *(types - 1);
             *stack = *(stack - 1);
         } else if (c == COMMAND_PRINT) {
-        }else {
+            char buffer[32];
+            datum_to_string(*types, *stack, buffer, 32);
+            printf("%s", buffer);
+        } else {
 			fprintf(stderr, "Polymorhpic VM halt!\n");
 			fprintf(stderr, "Error! Unknown opcode: 0x%x\n", c);
 			return ERROR_UNKNOWN_OPCODE;
