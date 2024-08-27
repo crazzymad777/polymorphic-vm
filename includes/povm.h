@@ -2,6 +2,7 @@
 #define POVM_H
 
 #include <datum.h>
+#include <stdio.h>
 
 struct povm_state {
     FILE* base_fd;

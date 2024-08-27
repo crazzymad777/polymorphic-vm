@@ -1,0 +1,34 @@
+#ifndef POVM_GEN_H
+#define POVM_GEN_H
+
+#include <povm.h>
+
+// Byte code file structure:
+// PROTECT2
+// stack_size in int64
+// instructions
+
+enum povm_operand_type {
+  NO_OPERANDS,
+  OFFSET,
+  DATUM,
+  TYPE
+};
+
+struct povm_operand {
+    // enum povm_operand_type t;
+    union {
+        int64_t offset;
+        struct {
+            int32_t type;
+            int64_t value;
+        };
+    };
+};
+
+#include <stdio.h>
+
+void povm_gen_init_header(FILE* fd, int stack_size);
+void povm_put_instruction(FILE* fd, char opcode, struct povm_operand* args);
+
+#endif
