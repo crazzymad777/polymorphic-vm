@@ -54,10 +54,10 @@ int povm_execute(FILE* fd, union udatum* stack, int32_t* types);
 
 // implemented >>>>
 #define COMMAND_DEBUG_PRINT 0x1b
-// implemented <<<<
-// not tested >>>>
 #define COMMAND_DEBUG_ASSERT 0x1c
+// implemented <<<<
 
+// not tested >>>>
 #define COMMAND_EQUALS 0x1d
 #define COMMAND_NOT_EQUALS 0x1e
 #define COMMAND_GREAT_THAN 0x1f
