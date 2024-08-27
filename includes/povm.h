@@ -11,6 +11,12 @@ struct povm_state {
     int32_t* types;
 };
 
+// Debug features:
+// Disable debug commands
+// Enable debug commands
+// Verbose
+
+
 int povm_execute(FILE* fd, union udatum* stack, int32_t* types);
 
 #define COMMAND_PUSH_ROOT_STACK 0x01
@@ -31,6 +37,7 @@ int povm_execute(FILE* fd, union udatum* stack, int32_t* types);
 #define COMMAND_CALL 0x0e // offset
 #define COMMAND_RET 0x0f
 #define COMMAND_JMP 0x10 // offset
+// not tested <<<<
 #define COMMAND_CMP 0x11
 #define COMMAND_JE 0x12
 #define COMMAND_JNE 0x13
@@ -42,13 +49,17 @@ int povm_execute(FILE* fd, union udatum* stack, int32_t* types);
 #define COMMAND_PRINT 0x18
 // implemented <<<<
 #define COMMAND_READ 0x19 // read text from stdin and determine type
-#define COMMAND_FEED 0x1a // type
+#define COMMAND_FEED 0x1a // type, binary read
 
 // implemented >>>>
 #define COMMAND_DEBUG_PRINT 0x1b
 // implemented <<<<
-
 #define COMMAND_DEBUG_ASSERT 0x1c
+// not tested <<<<
+
+// #define COMMAND_CAST 0x1d // type, must be implemented
+// #define COMMAND_SET_TYPE ...0x1e // type punning
+// #define COMMAND_PUSH_TYPE ...0x1f // save typeid
 
 #define ERROR_UNIMPLEMENTED_OPCODE -5
 #define ERROR_UNKNOWN_OPCODE -4

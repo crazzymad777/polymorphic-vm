@@ -126,6 +126,17 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, union udatum* stack, i
             vm->stack = stack;
             vm->types = types;
 			return -42;
+		} else if (c == COMMAND_JMP) {
+			long pos = ftell(fd) - 1;
+			uint64_t offset;
+			int bytes = fread(&offset, 8, 1, fd);
+			if (bytes == 1) {
+				if (offset == 0) {
+					fprintf(stderr, "Polymorhpic VM halt!\n");
+					return -6;
+				}
+				fseek(fd, pos + offset, SEEK_SET);
+			}
 		} else if (c == COMMAND_PRINT) {
             char buffer[32];
             datum_to_string(povm_datum(*types, *stack), buffer, 32);
