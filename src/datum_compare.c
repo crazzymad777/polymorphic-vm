@@ -9,9 +9,11 @@ enum OP_COMPARE datum_op_compare_void(struct datum p0, struct datum p1) {
 // If at least one of operands is BOOLEAN call this function
 bool datum_op_equals_boolean(struct datum p0, struct datum p1) {
     if (datum_is_logical(p0) && datum_is_logical(p1)) {
-        return p0.boolean == p1.boolean ? OP_COMPARE_EQUALS : OP_COMPARE_NOT_EQUALS;
+        return p0.boolean == p1.boolean;
     }
 
+
+    // SIZES!!!
 #ifdef LAMBDA_COMPARE_BOOLEAN_TO_INTEGER
     // Integer?
     if (datum_is_integer(p0)) {

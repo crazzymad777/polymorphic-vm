@@ -137,6 +137,28 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, union udatum* stack, i
 				}
 				fseek(fd, pos + offset, SEEK_SET);
 			}
+		} else if (c == COMMAND_CMP) {
+            struct datum p0 = povm_datum(*types, *stack);
+            struct datum p1 = povm_datum(*(types-1), *(stack-1));
+
+			uint64_t value = 0;
+			// char equal = *(vm.sp_f64-1) == *vm.sp_f64;
+			char greater = datum_op_gt(p0, p1);
+			char less = datum_op_lt(p0, p1);
+			char not_equal = datum_op_not_equals(p0, p1);
+
+			value = not_equal | (greater << 1) | (less << 2);
+			// Equal - 0
+			// Not Equal - 1
+			// Greater - 3
+			// Less - 5
+
+			// NaN != NaN -> 1
+			// NaN != x -> 1
+			stack += 1;
+            types += 1;
+			stack->i64 = value;
+            *types = I64;
 		} else if (c == COMMAND_PRINT) {
             char buffer[32];
             datum_to_string(povm_datum(*types, *stack), buffer, 32);
