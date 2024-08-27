@@ -74,11 +74,13 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, union udatum* stack, i
             stack -= 1;
             types -= 1;
         } else if (c == COMMAND_SWAP) {
-            int type = *(types-1);
-            int64_t value = *(sp-1);
+            int32_t type = *(types-1);
+            int64_t value = (stack-1)->i64;
+
             *(types - 1) = *types;
-            *(sp - 1) = stack->i64;
-            *types = type;
+            (stack - 1)->i64 = stack->i64;
+
+			*types = type;
             stack->i64 = value;
         } else if (c == COMMAND_DUP) {
             // For CDT: must increment internal counter of uses

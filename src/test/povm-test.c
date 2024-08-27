@@ -4,6 +4,7 @@
 int test_command_add_i64(int64_t a, int64_t b);
 int test_command_add_f64(int64_t a, int64_t b);
 int test_command_dup_i64(int64_t a);
+int test_command_swap_i64(int64_t a, int64_t b);
 int test_command_bxor_i64(int64_t a, int64_t b);
 int test_command_band_i64(int64_t a, int64_t b);
 int test_command_bor_i64(int64_t a, int64_t b);
@@ -12,14 +13,14 @@ int test_command_bor_i64(int64_t a, int64_t b);
 #include <stdlib.h>
 
 static MunitResult test_command_add(const MunitParameter params[], void* user_data) {
-    srand(time(NULL));
+    //srand(time(NULL));
     test_command_add_i64(rand(), rand());
     test_command_add_f64(-49.0, 44.3);
     return MUNIT_OK;
 }
 
 static MunitResult test_command_bxor(const MunitParameter params[], void* user_data) {
-    srand(time(NULL));
+    //srand(time(NULL));
     int a = rand();
     int b = rand();
     test_command_bxor_i64(a, b);
@@ -29,8 +30,11 @@ static MunitResult test_command_bxor(const MunitParameter params[], void* user_d
 }
 
 static MunitResult test_command_dup(const MunitParameter params[], void* user_data) {
-    srand(time(NULL));
-    test_command_dup_i64(rand());
+    //srand(time(NULL));
+    int a = rand();
+    int b = rand();
+    test_command_dup_i64(a);
+    test_command_swap_i64(a, b);
     return MUNIT_OK;
 }
 
