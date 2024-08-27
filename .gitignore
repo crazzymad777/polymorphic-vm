@@ -3,4 +3,6 @@ CMakeFiles
 cmake_install.cmake
 Makefile
 povm
+libpovm-framework.a
+libpovm-generator-framework.a
 
