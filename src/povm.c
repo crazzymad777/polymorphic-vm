@@ -41,6 +41,7 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, union udatum* stack, i
             fprintf(stderr, "Polymorhpic VM halt!\n");
             fprintf(stderr, "Error! Datum error: 0x%x\n", r.error_code);
             fprintf(stderr, "Offset: 0x%x\n", ftell(fd));
+            // How to behave properly?
         }
     }
 
@@ -95,7 +96,37 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, union udatum* stack, i
             apply_operation(datum_div);
         } else if (c == COMMAND_REM) {
             apply_operation(datum_rem);
-        } else if (c == COMMAND_PRINT) {
+        } else if (c == COMMAND_BXOR) {
+            apply_operation(datum_bitwise_xor);
+        } else if (c == COMMAND_BAND) {
+            apply_operation(datum_bitwise_and);
+        } else if (c == COMMAND_BOR) {
+            apply_operation(datum_bitwise_or);
+        } else if (c == COMMAND_CALL) {
+			long pos = ftell(fd) - 1;
+			uint64_t offset;
+			int bytes = fread(&offset, 8, 1, fd);
+			if (bytes == 1) {
+				if (offset == 0) {
+					fprintf(stderr, "Polymorhpic VM halt!\n");
+					return -6;
+				}
+				fseek(fd, pos + offset, SEEK_SET);
+			}
+
+			struct povm_state vm_callee = *vm;
+			int exit_code = povm_execute_command(&vm_callee, fd, stack, types);
+			if (exit_code == -42) {
+				exit_code = 0;
+			}
+			fseek(fd, pos + 9, SEEK_SET);
+			*vm = vm_callee;
+			return exit_code;
+		} else if (c == COMMAND_RET) {
+            vm->stack = stack;
+            vm->types = types;
+			return -42;
+		} else if (c == COMMAND_PRINT) {
             char buffer[32];
             datum_to_string(povm_datum(*types, *stack), buffer, 32);
             printf("%s", buffer);
@@ -106,6 +137,13 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, union udatum* stack, i
             char buffer[32];
             datum_to_string(povm_datum(*types, *stack), buffer, 32);
             printf("%s:%s\n", datum_get_type(*types), buffer);
+        } else if (c == COMMAND_DEBUG_ASSERT) {
+            // not strict equals, doubtfully
+            bool assertion = datum_op_equals(povm_datum(*types, *stack), povm_datum(*(types-1), *(stack-1)));
+            if (!assertion) {
+                fprintf(stderr, "Polymorhpic VM: assertion failed\n");
+                return -10;
+            }
         } else {
 			fprintf(stderr, "Polymorhpic VM halt!\n");
 			fprintf(stderr, "Error! Unknown opcode: 0x%x\n", c);
