@@ -19,6 +19,13 @@ static size_t codepoint_to_utf8(unsigned char *const buffer, const char32_t code
 #define LAMBDA_COMPARE_BOOLEAN_TO_INTEGER 1
 #define LAMBDA_COMPARE_BOOLEAN_TO_FLOATING 1
 
+enum compate_result {
+    COMPARE_RESULT_LESS = 1 << 31,
+    COMPARE_RESULT_EQUALS = 0,
+    COMPARE_RESULT_NOT_EQUALS = 1,
+    COMPARE_RESULT_GREATER = 2
+};
+
 // List of types
 enum datum_type {
 VOID,
@@ -33,7 +40,8 @@ U32,
 U64,
 F32,
 F64,
-CODEPOINT
+CODEPOINT,
+COMPARE_RESULT
 };
 
 union udatum {
@@ -50,6 +58,7 @@ union udatum {
     double f64;
     // const char* cstring;
     char32_t codepoint;
+    enum compate_result compare_result;
 };
 
 struct datum {
