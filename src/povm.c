@@ -163,6 +163,84 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, union udatum* stack, i
             types += 1;
 			stack->i64 = value;
             *types = I64; */
+		} else if (c == COMMAND_JE) {
+			long pos = ftell(fd) - 1;
+			uint64_t offset;
+			int bytes = fread(&offset, 8, 1, fd);
+			if (bytes == 1) {
+				if (stack->i64 == 0 || (*types == BOOLEAN && stack->boolean)) {
+					if (offset == 0) {
+						fprintf(stderr, "Polymorhpic VM halt!\n");
+						return -6;
+					}
+					fseek(fd, pos + offset, SEEK_SET);
+				}
+			}
+		} else if (c == COMMAND_JNE) {
+			long pos = ftell(fd) - 1;
+			uint64_t offset;
+			int bytes = fread(&offset, 8, 1, fd);
+			if (bytes == 1) {
+				if (stack->i64 != 0 || (*types == BOOLEAN && stack->boolean)) {
+					if (offset == 0) {
+						fprintf(stderr, "Polymorhpic VM halt!\n");
+						return -6;
+					}
+					fseek(fd, pos + offset, SEEK_SET);
+				}
+			}
+		} else if (c == COMMAND_JG) {
+			long pos = ftell(fd) - 1;
+			uint64_t offset;
+			int bytes = fread(&offset, 8, 1, fd);
+			if (bytes == 1) {
+				if (stack->i64 > 0 || (*types == BOOLEAN && stack->boolean)) {
+					if (offset == 0) {
+						fprintf(stderr, "Polymorhpic VM halt!\n");
+						return -6;
+					}
+					fseek(fd, pos + offset, SEEK_SET);
+				}
+			}
+		} else if (c == COMMAND_JL) {
+			long pos = ftell(fd) - 1;
+			uint64_t offset;
+			int bytes = fread(&offset, 8, 1, fd);
+			if (bytes == 1) {
+				if (stack->i64 < 0 || (*types == BOOLEAN && stack->boolean)) {
+					if (offset == 0) {
+						fprintf(stderr, "Polymorhpic VM halt!\n");
+						return -6;
+					}
+					fseek(fd, pos + offset, SEEK_SET);
+				}
+			}
+		} else if (c == COMMAND_JLE) {
+			long pos = ftell(fd) - 1;
+			uint64_t offset;
+			int bytes = fread(&offset, 8, 1, fd);
+			if (bytes == 1) {
+				if (stack->i64 <= 0 || (*types == BOOLEAN && stack->boolean)) {
+					if (offset == 0) {
+						fprintf(stderr, "Polymorhpic VM halt!\n");
+						return -6;
+					}
+					fseek(fd, pos + offset, SEEK_SET);
+				}
+			}
+		} else if (c == COMMAND_JGE) {
+			long pos = ftell(fd) - 1;
+			uint64_t offset;
+			int bytes = fread(&offset, 8, 1, fd);
+			if (bytes == 1) {
+				if (stack->i64 >= 0 || (*types == BOOLEAN && stack->boolean)) {
+					if (offset == 0) {
+						fprintf(stderr, "Polymorhpic VM halt!\n");
+						return -6;
+					}
+					fseek(fd, pos + offset, SEEK_SET);
+				}
+			}
 		} else if (c == COMMAND_PRINT) {
             char buffer[32];
             datum_to_string(povm_datum(*types, *stack), buffer, 32);
@@ -181,6 +259,30 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, union udatum* stack, i
                 fprintf(stderr, "Polymorhpic VM: assertion failed\n");
                 return -10;
             }
+        } else if (c == COMMAND_EQUALS) {
+            bool eq = datum_op_equals(povm_datum(*types, *stack), povm_datum(*(types-1), *(stack-1)));
+            stack += 1;
+            types += 1;
+			stack->boolean = eq;
+            *types = BOOLEAN;
+        } else if (c == COMMAND_NOT_EQUALS) {
+            bool not_eq = datum_op_not_equals(povm_datum(*types, *stack), povm_datum(*(types-1), *(stack-1)));
+            stack += 1;
+            types += 1;
+			stack->boolean = not_eq;
+            *types = BOOLEAN;
+        } else if (c == COMMAND_GREAT_THAN) {
+            bool gt = datum_op_gt(povm_datum(*types, *stack), povm_datum(*(types-1), *(stack-1)));
+            stack += 1;
+            types += 1;
+			stack->boolean = gt;
+            *types = BOOLEAN;
+        } else if (c == COMMAND_LESS_THAN) {
+            bool lt = datum_op_lt(povm_datum(*types, *stack), povm_datum(*(types-1), *(stack-1)));
+            stack += 1;
+            types += 1;
+			stack->boolean = lt;
+            *types = BOOLEAN;
         } else {
 			fprintf(stderr, "Polymorhpic VM halt!\n");
 			fprintf(stderr, "Error! Unknown opcode: 0x%x\n", c);

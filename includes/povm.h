@@ -37,14 +37,14 @@ int povm_execute(FILE* fd, union udatum* stack, int32_t* types);
 #define COMMAND_CALL 0x0e // offset
 #define COMMAND_RET 0x0f
 #define COMMAND_JMP 0x10 // offset
-// not tested <<<<
-// #define COMMAND_CMP 0x11
+#define COMMAND_CMP 0x11
 #define COMMAND_JE 0x12
 #define COMMAND_JNE 0x13
 #define COMMAND_JGE 0x14
 #define COMMAND_JLE 0x15
 #define COMMAND_JG 0x16
 #define COMMAND_JL 0x17
+// not tested <<<<
 // implemented >>>>
 #define COMMAND_PRINT 0x18
 // implemented <<<<
@@ -54,13 +54,14 @@ int povm_execute(FILE* fd, union udatum* stack, int32_t* types);
 // implemented >>>>
 #define COMMAND_DEBUG_PRINT 0x1b
 // implemented <<<<
+// not tested >>>>
 #define COMMAND_DEBUG_ASSERT 0x1c
-// not tested <<<<
 
 #define COMMAND_EQUALS 0x1d
 #define COMMAND_NOT_EQUALS 0x1e
 #define COMMAND_GREAT_THAN 0x1f
 #define COMMAND_LESS_THAN 0x20
+// not tested <<<<
 
 // #define COMMAND_CAST 0x21 // type, must be implemented
 // #define COMMAND_SET_TYPE ...0x22 // type punning
