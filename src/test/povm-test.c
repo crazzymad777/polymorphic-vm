@@ -2,7 +2,12 @@
 #include <munit.h>
 
 int test_command_add_i64(int64_t a, int64_t b);
+int test_command_sub_i64(int64_t a, int64_t b);
+int test_command_mul_i64(int64_t a, int64_t b);
+int test_command_div_i64(int64_t a, int64_t b);
+int test_command_rem_i64(int64_t a, int64_t b);
 int test_command_add_f64(int64_t a, int64_t b);
+int test_command_push_i64(int64_t a);
 int test_command_dup_i64(int64_t a);
 int test_command_swap_i64(int64_t a, int64_t b);
 int test_command_bxor_i64(int64_t a, int64_t b);
@@ -14,7 +19,13 @@ int test_command_bor_i64(int64_t a, int64_t b);
 
 static MunitResult test_command_add(const MunitParameter params[], void* user_data) {
     //srand(time(NULL));
-    test_command_add_i64(rand(), rand());
+    int a = rand();
+    int b = rand();
+    test_command_add_i64(a, b);
+    test_command_sub_i64(a, b);
+    test_command_mul_i64(a, b);
+    test_command_div_i64(a, b);
+    test_command_rem_i64(a, b);
     test_command_add_f64(-49.0, 44.3);
     return MUNIT_OK;
 }
@@ -33,6 +44,7 @@ static MunitResult test_command_dup(const MunitParameter params[], void* user_da
     //srand(time(NULL));
     int a = rand();
     int b = rand();
+    test_command_push_i64(a);
     test_command_dup_i64(a);
     test_command_swap_i64(a, b);
     return MUNIT_OK;
@@ -40,7 +52,7 @@ static MunitResult test_command_dup(const MunitParameter params[], void* user_da
 
 static MunitTest test_suite_tests[] = {
   {
-    (char*) "test_command_add",
+    (char*) "test_command_add (add/sub/mul/div/rem)",
     test_command_add,
     NULL,
     NULL,
@@ -56,7 +68,7 @@ static MunitTest test_suite_tests[] = {
     NULL
   },
   {
-    (char*) "test_command_dup (duplicate)",
+    (char*) "test_command_dup (push/swap/dup)",
     test_command_dup,
     NULL,
     NULL,
