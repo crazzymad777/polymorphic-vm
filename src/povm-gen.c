@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-int povm_gen_init_header(FILE* fd, int stack_size) {
+int povm_gen_init_header(FILE* fd, int64_t stack_size) {
     int bytes = fprintf(fd, "PROTECT2");
     if (bytes != 8) {
         return POVM_GEN_IO_ERROR;

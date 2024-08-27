@@ -31,7 +31,7 @@ struct povm_operand {
 
 #include <stdio.h>
 
-int povm_gen_init_header(FILE* fd, int stack_size);
+int povm_gen_init_header(FILE* fd, int64_t stack_size);
 int povm_put_instruction(FILE* fd, char opcode, struct povm_operand* args);
 
 #endif
