@@ -8,10 +8,10 @@
 
 
 enum OP_COMPARE {
-    OP_COMPARE_LESS,
-    OP_COMPARE_EQUALS,
-    OP_COMPARE_MORE,
-    OP_COMPARE_NOT_EQUALS
+    OP_COMPARE_LESS = -9223372036854775808,
+    OP_COMPARE_EQUALS = 0,
+    OP_COMPARE_MORE = 2,
+    OP_COMPARE_NOT_EQUALS = 1
 };
 
 // If at least one of operands is VOID call this function
