@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <povm.h>
 
+typedef struct result (*datum_operation)(struct datum, struct datum);
+
 int povm_execute_command(struct povm_state* vm, FILE* fd, union udatum* stack, int32_t* types);
 
 int povm_execute(FILE* fd, union udatum* stack, int32_t* types) {
@@ -28,6 +30,21 @@ int povm_execute(FILE* fd, union udatum* stack, int32_t* types) {
 }
 
 int povm_execute_command(struct povm_state* vm, FILE* fd, union udatum* stack, int32_t* types) {
+    void apply_operation(datum_operation op) {
+        struct result r = op(povm_datum(*(types-1), *(stack-1)), povm_datum(*(types), *(stack)));
+        if (r.type == RESULT) {
+            stack -= 1;
+            types -= 1;
+            *types = r.datum.type;
+            stack->i64 = r.datum.i64;
+        } else {
+            fprintf(stderr, "Polymorhpic VM halt!\n");
+            fprintf(stderr, "Error! Datum error: 0x%x\n", r.error_code);
+            fprintf(stderr, "Offset: 0x%x\n", ftell(fd));
+        }
+    }
+
+
     int c = fgetc(fd);
     int64_t* sp = &stack->i64;
 
@@ -69,65 +86,15 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, union udatum* stack, i
             *types = *(types - 1);
             *stack = *(stack - 1);
         } else if (c == COMMAND_ADD) {
-            struct result r = datum_add(povm_datum(*(types-1), *(stack-1)), povm_datum(*(types), *(stack)));
-            if (r.type == RESULT) {
-                stack -= 1;
-                types -= 1;
-                *types = r.datum.type;
-                stack->i64 = r.datum.i64;
-            } else {
-                fprintf(stderr, "Polymorhpic VM halt!\n");
-                fprintf(stderr, "Error! Datum error: 0x%x\n", r.error_code);
-                fprintf(stderr, "Offset: 0x%x\n", ftell(fd));
-            }
+            apply_operation(datum_add);
         } else if (c == COMMAND_SUB) {
-            struct result r = datum_sub(povm_datum(*(types-1), *(stack-1)), povm_datum(*(types), *(stack)));
-            if (r.type == RESULT) {
-                stack -= 1;
-                types -= 1;
-                *types = r.datum.type;
-                stack->i64 = r.datum.i64;
-            } else {
-                fprintf(stderr, "Polymorhpic VM halt!\n");
-                fprintf(stderr, "Error! Datum error: 0x%x\n", r.error_code);
-                fprintf(stderr, "Offset: 0x%x\n", ftell(fd));
-            }
+            apply_operation(datum_sub);
         } else if (c == COMMAND_MUL) {
-            struct result r = datum_mul(povm_datum(*(types-1), *(stack-1)), povm_datum(*(types), *(stack)));
-            if (r.type == RESULT) {
-                stack -= 1;
-                types -= 1;
-                *types = r.datum.type;
-                stack->i64 = r.datum.i64;
-            } else {
-                fprintf(stderr, "Polymorhpic VM halt!\n");
-                fprintf(stderr, "Error! Datum error: 0x%x\n", r.error_code);
-                fprintf(stderr, "Offset: 0x%x\n", ftell(fd));
-            }
+            apply_operation(datum_mul);
         } else if (c == COMMAND_DIV) {
-            struct result r = datum_div(povm_datum(*(types-1), *(stack-1)), povm_datum(*(types), *(stack)));
-            if (r.type == RESULT) {
-                stack -= 1;
-                types -= 1;
-                *types = r.datum.type;
-                stack->i64 = r.datum.i64;
-            } else {
-                fprintf(stderr, "Polymorhpic VM halt!\n");
-                fprintf(stderr, "Error! Datum error: 0x%x\n", r.error_code);
-                fprintf(stderr, "Offset: 0x%x\n", ftell(fd));
-            }
+            apply_operation(datum_div);
         } else if (c == COMMAND_REM) {
-            struct result r = datum_rem(povm_datum(*(types-1), *(stack-1)), povm_datum(*(types), *(stack)));
-            if (r.type == RESULT) {
-                stack -= 1;
-                types -= 1;
-                *types = r.datum.type;
-                stack->i64 = r.datum.i64;
-            } else {
-                fprintf(stderr, "Polymorhpic VM halt!\n");
-                fprintf(stderr, "Error! Datum error: 0x%x\n", r.error_code);
-                fprintf(stderr, "Offset: 0x%x\n", ftell(fd));
-            }
+            apply_operation(datum_rem);
         } else if (c == COMMAND_PRINT) {
             char buffer[32];
             datum_to_string(povm_datum(*types, *stack), buffer, 32);

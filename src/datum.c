@@ -244,7 +244,7 @@ size_t codepoint_to_utf8(unsigned char *const buffer, const char32_t code)
 // add function with literal form??
 void datum_to_string(struct datum datum, char* buffer, int siz) {
     if (datum.type == VOID) {
-        snprintf(buffer, siz, "");
+        snprintf(buffer, siz, "(null)");
     }
     else if (datum.type == BOOLEAN) {
         snprintf(buffer, siz, "%s", datum.boolean ? "true" : "false");

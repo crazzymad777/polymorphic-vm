@@ -14,6 +14,7 @@ struct povm_state {
 int povm_execute(FILE* fd, union udatum* stack, int32_t* types);
 
 #define COMMAND_PUSH_ROOT_STACK 0x01
+// implemented >>>>
 #define COMMAND_PUSH 0x02 // type:value
 #define COMMAND_DROP 0x03
 #define COMMAND_SWAP 0x04
@@ -23,6 +24,7 @@ int povm_execute(FILE* fd, union udatum* stack, int32_t* types);
 #define COMMAND_MUL 0x08
 #define COMMAND_DIV 0x09
 #define COMMAND_REM 0x0a
+// implemented <<<<
 #define COMMAND_BXOR 0x0b
 #define COMMAND_BOR 0x0c
 #define COMMAND_BAND 0x0d
@@ -40,7 +42,9 @@ int povm_execute(FILE* fd, union udatum* stack, int32_t* types);
 #define COMMAND_READ 0x19 // read text from stdin and determine type
 #define COMMAND_FEED 0x1a // type
 
+// implemented >>>>
 #define COMMAND_DEBUG_PRINT 0x1b
+// implemented <<<<
 
 #define ERROR_UNIMPLEMENTED_OPCODE -5
 #define ERROR_UNKNOWN_OPCODE -4
