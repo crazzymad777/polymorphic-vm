@@ -5,4 +5,5 @@ Makefile
 povm
 libpovm-framework.a
 libpovm-generator-framework.a
+povm-test
 
