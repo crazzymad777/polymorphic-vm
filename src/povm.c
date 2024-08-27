@@ -39,7 +39,7 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, union udatum* stack, i
             stack->i64 = r.datum.i64;
         } else {
             fprintf(stderr, "Polymorhpic VM halt!\n");
-            fprintf(stderr, "Error! Datum error: 0x%x\n", r.error_code);
+            fprintf(stderr, "Error! Datum error: %d\n", r.error_code);
             fprintf(stderr, "Offset: 0x%x\n", ftell(fd));
             // How to behave properly?
         }
