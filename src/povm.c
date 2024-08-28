@@ -39,18 +39,20 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
 	bool bif = false;
 
     void apply_operation(datum_operation op) {
-        struct result r = op(povm_datum(*(types-1), *(stack-1)), povm_datum(*(types), *(stack)));
+		struct datum d1 = i.get_datum(s);
+		i.skip(s, -1);
+		struct datum d0 = i.get_datum(s);
+        struct result r = op(d0, d1);
         if (r.type == RESULT) {
-            stack -= 1;
-            types -= 1;
-            *types = r.datum.type;
-            stack->i64 = r.datum.i64;
+            //i.skip(s, -1);
+			i.put_datum(s, r.datum);
         } else {
             fprintf(stderr, "Polymorhpic VM halt!\n");
             fprintf(stderr, "Error! Datum error: %d\n", r.error_code);
             fprintf(stderr, "Offset: 0x%x\n", ftell(fd));
             // How to behave properly?
         }
+        bif = true;
     }
 
 
@@ -92,10 +94,10 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
 			bif = true;
         } else if (c == COMMAND_DUP) {
             // For CDT: must increment internal counter of uses
-            stack += 1;
-            types += 1;
-            *types = *(types - 1);
-            *stack = *(stack - 1);
+            struct datum d = i.get_datum(s);
+			i.skip(s, 1);
+            i.put_datum(s, d);
+			bif = true;
         } else if (c == COMMAND_ADD) {
             apply_operation(datum_add);
         } else if (c == COMMAND_SUB) {
@@ -244,24 +246,33 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
 			}
 		} else if (c == COMMAND_PRINT) {
             char buffer[32];
-            datum_to_string(povm_datum(*types, *stack), buffer, 32);
+            datum_to_string(i.get_datum(s), buffer, 32);
             printf("%s", buffer);
         } else if (c == COMMAND_DEBUG_PRINT) {
             fprintf(stderr, "Offset: 0x%x\n", ftell(fd));
             fprintf(stderr, "Base stack pointer: 0x%x\n", vm->base_pointer);
             fprintf(stderr, "Stack pointer: 0x%x\n", vm->stack);
             char buffer[32];
-            datum_to_string(povm_datum(*types, *stack), buffer, 32);
+            datum_to_string(i.get_datum(s), buffer, 32);
             printf("%s:%s\n", datum_get_type(*types), buffer);
         } else if (c == COMMAND_DEBUG_ASSERT) {
             // not strict equals, doubtfully
-            bool assertion = datum_op_equals(povm_datum(*types, *stack), povm_datum(*(types-1), *(stack-1)));
+			struct datum d0 = i.get_datum(s);
+			i.skip(s, -1);
+			struct datum d1 = i.get_datum(s);
+			i.skip(s, 1);
+            bool assertion = datum_op_equals(d0, d1);
             if (!assertion) {
                 fprintf(stderr, "Polymorhpic VM: assertion failed\n");
                 return -10;
             }
+            bif = true;
         } else if (c == COMMAND_EQUALS) {
-            bool eq = datum_op_equals(povm_datum(*types, *stack), povm_datum(*(types-1), *(stack-1)));
+            struct datum d0 = i.get_datum(s);
+			i.skip(s, -1);
+			struct datum d1 = i.get_datum(s);
+			i.skip(s, 1);
+			bool eq = datum_op_equals(d0, d1);
             stack += 1;
             types += 1;
 			stack->compare_result = eq ? COMPARE_RESULT_EQUALS : COMPARE_RESULT_NOT_EQUALS;
