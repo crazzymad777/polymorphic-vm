@@ -3,7 +3,7 @@ project (polymorphic-vm)
 
 include_directories(includes/)
 include_directories(munit/) # munit.h
-add_library(povm-framework STATIC src/povm.c src/datum.c src/datum-casts.c src/datum_compare.c src/datum_math.c src/datum_op_equals.c src/datum-pair.c src/result.c) # core part of PoVM
+add_library(povm-framework STATIC src/povm.c src/povm-stack.c src/datum.c src/datum-casts.c src/datum_compare.c src/datum_math.c src/datum_op_equals.c src/datum-pair.c src/result.c) # core part of PoVM
 add_library(povm-generator-framework STATIC src/povm-gen.c src/povm-info.c) # additional part with Info and Generator
 target_link_libraries(povm-generator-framework povm-framework)
 
