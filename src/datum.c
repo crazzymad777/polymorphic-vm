@@ -6,7 +6,7 @@
 #include "datum-pair.h"
 
 struct datum povm_datum(int t, union udatum v) {
-    struct datum datum = {t, .i64 = v.i64};
+    struct datum datum = {t, .udatum = v};
     return datum;
 }
 

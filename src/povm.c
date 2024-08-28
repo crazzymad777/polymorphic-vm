@@ -1,3 +1,4 @@
+#include <povm-stack.h>
 #include <stdint.h>
 #include <limits.h>
 #include <stdio.h>
@@ -5,7 +6,7 @@
 
 typedef struct result (*datum_operation)(struct datum, struct datum);
 
-int povm_execute_command(struct povm_state* vm, FILE* fd, union udatum* stack, int32_t* types);
+int povm_execute_command(struct povm_state* vm, FILE* fd, void* s);
 
 int povm_execute(FILE* fd, union udatum* stack, int32_t* types) {
     struct povm_state vm = {
@@ -17,7 +18,8 @@ int povm_execute(FILE* fd, union udatum* stack, int32_t* types) {
     };
 
     while (!feof(fd)) {
-		int r = povm_execute_command(&vm, fd, vm.stack, vm.types);
+		struct povm_stack s = {povm_get_std_stack_interface(), vm.types, vm.stack};
+		int r = povm_execute_command(&vm, fd, &s);
 		if (r == -42) {
 			return -42;
 		}
@@ -29,7 +31,13 @@ int povm_execute(FILE* fd, union udatum* stack, int32_t* types) {
     return 0;
 }
 
-int povm_execute_command(struct povm_state* vm, FILE* fd, union udatum* stack, int32_t* types) {
+int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
+	struct povm_stack* ctx = s;
+	 struct povm_stack_interface i = *ctx->interface;
+	union udatum* stack = ctx->stack;
+	int32_t* types = ctx->types;
+	bool bif = false;
+
     void apply_operation(datum_operation op) {
         struct result r = op(povm_datum(*(types-1), *(stack-1)), povm_datum(*(types), *(stack)));
         if (r.type == RESULT) {
@@ -62,26 +70,32 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, union udatum* stack, i
             if (bytes == 1) {
                 int bytes = fread(&value, 8, 1, fd);
                 if (bytes == 1) {
-                    stack += 1;
-                    types += 1;
-
-                    stack->i64 = value;
-                    *types = type;
-                }
+					i.skip(s, 1);
+					i.put_type(ctx, type);
+					union udatum d = { .i64 = value };
+					i.put_value(ctx, d);
+					bif = true;
+				}
             }
         } else if (c == COMMAND_DROP) {
             // For CDT: must check internal counter of uses
-            stack -= 1;
-            types -= 1;
+            i.skip(s, -1);
+			bif = true;
         } else if (c == COMMAND_SWAP) {
-            int32_t type = *(types-1);
-            int64_t value = (stack-1)->i64;
+            int32_t type[] = {i.get_type(s), 0};
+            union udatum value[] = {i.get_value(s), 0};
 
-            *(types - 1) = *types;
-            (stack - 1)->i64 = stack->i64;
+			i.skip(s, -1);
+			type[1] = i.get_type(s);
+			value [1] = i.get_value(s);
+			i.put_type(s, type[0]);
+			i.put_value(s, value[0]);
 
-			*types = type;
-            stack->i64 = value;
+			i.skip(s, 1);
+			i.put_type(s, type[1]);
+			i.put_value(s, value[1]);
+
+			bif = true;
         } else if (c == COMMAND_DUP) {
             // For CDT: must increment internal counter of uses
             stack += 1;
@@ -117,7 +131,7 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, union udatum* stack, i
 			}
 
 			struct povm_state vm_callee = *vm;
-			int exit_code = povm_execute_command(&vm_callee, fd, stack, types);
+			int exit_code = povm_execute_command(&vm_callee, fd, s);
 			if (exit_code == -42) {
 				exit_code = 0;
 			}
@@ -290,7 +304,13 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, union udatum* stack, i
 			return ERROR_UNKNOWN_OPCODE;
 		}
     }
-    vm->stack = stack;
-    vm->types = types;
-    return 0;
+
+    if (bif) {
+		vm->stack = ctx->stack;
+		vm->types = ctx->types;
+	} else {
+		vm->stack = stack; // ctx->stack
+		vm->types = types; // ctx->types
+	}
+	return 0;
 }

@@ -77,6 +77,7 @@ struct datum {
         double f64;
         // const char* cstring;
         char32_t codepoint;
+        union udatum udatum;
     };
 };
 
