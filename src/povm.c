@@ -71,9 +71,7 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
                 int bytes = fread(&value, 8, 1, fd);
                 if (bytes == 1) {
 					i.skip(s, 1);
-					i.put_type(ctx, type);
-					union udatum d = { .i64 = value };
-					i.put_value(ctx, d);
+					i.put_datum(ctx, povm_datum_by_i64(type, value));
 					bif = true;
 				}
             }
@@ -82,18 +80,14 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
             i.skip(s, -1);
 			bif = true;
         } else if (c == COMMAND_SWAP) {
-            int32_t type[] = {i.get_type(s), 0};
-            union udatum value[] = {i.get_value(s), 0};
+            struct datum d[2] = {i.get_datum(s)};
 
 			i.skip(s, -1);
-			type[1] = i.get_type(s);
-			value [1] = i.get_value(s);
-			i.put_type(s, type[0]);
-			i.put_value(s, value[0]);
+			d[1] = i.get_datum(s);
+			i.put_datum(s, d[0]);
 
 			i.skip(s, 1);
-			i.put_type(s, type[1]);
-			i.put_value(s, value[1]);
+			i.put_datum(s, d[1]);
 
 			bif = true;
         } else if (c == COMMAND_DUP) {

@@ -10,6 +10,11 @@ struct datum povm_datum(int t, union udatum v) {
     return datum;
 }
 
+struct datum povm_datum_by_i64(int t, int64_t v) {
+    struct datum datum = {t, .i64 = v};
+    return datum;
+}
+
 struct datum datum_void(void) {
     struct datum datum = {VOID};
     return datum;

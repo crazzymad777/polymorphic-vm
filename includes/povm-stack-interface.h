@@ -10,7 +10,7 @@ struct povm_stack_interface {
     int (*put_value)(void* ctx, union udatum value);
     int32_t (*get_type)(void* ctx);
     union udatum (*get_value)(void* ctx);
-    int (*put_datum)(void* ctx, int32_t type, int64_t value);
+    int (*put_datum)(void* ctx, struct datum datum);
     struct datum (*get_datum)(void* ctx);
 };
 

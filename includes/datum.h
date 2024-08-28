@@ -85,6 +85,7 @@ struct datum {
 
 // Construct Algebraic Data Type (primitive)
 struct datum povm_datum(int t, union udatum v);
+struct datum povm_datum_by_i64(int t, int64_t v);
 struct datum datum_void(void);
 struct datum datum_bool(bool boolean);
 
