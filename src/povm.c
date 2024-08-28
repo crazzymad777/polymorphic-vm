@@ -106,7 +106,7 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
             apply_operation(datum_bitwise_or);
         } else if (c == COMMAND_CALL) {
 			long pos = ftell(fd) - 1;
-			uint64_t offset;
+			int64_t offset;
 			int bytes = fread(&offset, 8, 1, fd);
 			if (bytes == 1) {
 				if (offset == 0) {
@@ -138,7 +138,7 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
 			return -42;
 		} else if (c == COMMAND_JMP) {
 			long pos = ftell(fd) - 1;
-			uint64_t offset;
+			int64_t offset;
 			int bytes = fread(&offset, 8, 1, fd);
 			if (bytes == 1) {
 				if (offset == 0) {
@@ -165,7 +165,7 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
 			i.put_datum(s, povm_datum_by_i64(COMPARE_RESULT, value));
 		} else if (c == COMMAND_JE) {
 			long pos = ftell(fd) - 1;
-			uint64_t offset;
+			int64_t offset;
 			int bytes = fread(&offset, 8, 1, fd);
 			if (bytes == 1) {
 				struct datum datum = i.get_datum(s);
@@ -179,7 +179,7 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
 			}
 		} else if (c == COMMAND_JNE) {
 			long pos = ftell(fd) - 1;
-			uint64_t offset;
+			int64_t offset;
 			int bytes = fread(&offset, 8, 1, fd);
 			if (bytes == 1) {
 				struct datum datum = i.get_datum(s);
@@ -193,7 +193,7 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
 			}
 		} else if (c == COMMAND_JG) {
 			long pos = ftell(fd) - 1;
-			uint64_t offset;
+			int64_t offset;
 			int bytes = fread(&offset, 8, 1, fd);
 			if (bytes == 1) {
 				if (i.get_value(s).i64 > 0) {
@@ -206,7 +206,7 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
 			}
 		} else if (c == COMMAND_JL) {
 			long pos = ftell(fd) - 1;
-			uint64_t offset;
+			int64_t offset;
 			int bytes = fread(&offset, 8, 1, fd);
 			if (bytes == 1) {
 				if (i.get_value(s).i64 < 0) {
@@ -219,7 +219,7 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
 			}
 		} else if (c == COMMAND_JLE) {
 			long pos = ftell(fd) - 1;
-			uint64_t offset;
+			int64_t offset;
 			int bytes = fread(&offset, 8, 1, fd);
 			if (bytes == 1) {
 				if (i.get_value(s).i64 <= 0) {
@@ -232,7 +232,7 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
 			}
 		} else if (c == COMMAND_JGE) {
 			long pos = ftell(fd) - 1;
-			uint64_t offset;
+			int64_t offset;
 			int bytes = fread(&offset, 8, 1, fd);
 			if (bytes == 1) {
 				if (i.get_value(s).i64 >= 0) {

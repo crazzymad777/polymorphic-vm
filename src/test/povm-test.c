@@ -17,6 +17,8 @@ int test_command_bor_i64(int64_t a, int64_t b);
 int test_command_ret();
 int test_command_halt_call();
 int test_command_halt_jump();
+int test_command_jump_to_eof(int64_t x);
+void test_command_jump_call();
 
 #include <time.h>
 #include <stdlib.h>
@@ -59,6 +61,8 @@ static MunitResult test_command_call(const MunitParameter params[], void* user_d
     test_command_ret();
     test_command_halt_call();
     test_command_halt_jump();
+    test_command_jump_to_eof(rand());
+    test_command_jump_call();
     return MUNIT_OK;
 }
 
