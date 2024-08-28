@@ -37,9 +37,9 @@ int povm_execute(FILE* fd, union udatum* stack, int32_t* types);
 #define COMMAND_CALL 0x0e // offset
 #define COMMAND_RET 0x0f
 #define COMMAND_JMP 0x10 // offset
+#define COMMAND_CMP 0x11
 // implemented <<<<
 // not tested >>>>
-#define COMMAND_CMP 0x11
 #define COMMAND_JE 0x12
 #define COMMAND_JNE 0x13
 #define COMMAND_JGE 0x14

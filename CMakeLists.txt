@@ -7,7 +7,7 @@ add_library(povm-framework STATIC src/povm.c src/povm-stack.c src/datum.c src/da
 add_library(povm-generator-framework STATIC src/povm-gen.c src/povm-info.c) # additional part with Info and Generator
 target_link_libraries(povm-generator-framework povm-framework)
 
-add_executable(povm-test src/test/povm-test.c src/test/povm-test-call.c src/test/povm-test-add.c src/test/povm-test-bxor.c src/test/povm-test-dup.c munit/munit.c) # munit test suite
+add_executable(povm-test src/test/povm-test.c src/test/povm-test-cmp.c src/test/povm-test-call.c src/test/povm-test-add.c src/test/povm-test-bxor.c src/test/povm-test-dup.c munit/munit.c) # munit test suite
 add_executable(povm src/main.c) # main executable
 target_link_libraries(povm m povm-framework)
 target_link_libraries(povm-test m povm-generator-framework)

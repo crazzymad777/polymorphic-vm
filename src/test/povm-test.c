@@ -20,6 +20,11 @@ int test_command_halt_jump();
 int test_command_jump_to_eof(int64_t x);
 void test_command_jump_call();
 
+void test_command_cmp_eq();
+void test_command_cmp_not_eq();
+void test_command_cmp_gt();
+void test_command_cmp_lt();
+
 #include <time.h>
 #include <stdlib.h>
 
@@ -66,6 +71,14 @@ static MunitResult test_command_call(const MunitParameter params[], void* user_d
     return MUNIT_OK;
 }
 
+static MunitResult test_cmp(const MunitParameter params[], void* user_data) {
+    test_command_cmp_eq();
+    test_command_cmp_not_eq();
+    test_command_cmp_gt();
+    test_command_cmp_lt();
+    return MUNIT_OK;
+}
+
 static MunitTest test_suite_tests[] = {
   {
     (char*) "test add/sub/mul/div/rem",
@@ -94,6 +107,14 @@ static MunitTest test_suite_tests[] = {
   {
     (char*) "test ret/call",
     test_command_call,
+    NULL,
+    NULL,
+    MUNIT_TEST_OPTION_NONE,
+    NULL
+  },
+  {
+    (char*) "test cmp",
+    test_cmp,
     NULL,
     NULL,
     MUNIT_TEST_OPTION_NONE,
