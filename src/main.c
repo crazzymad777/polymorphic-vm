@@ -28,6 +28,9 @@ int run_vm(FILE *fd, int close_fd) {
 	int32_t types[stack_size / 8];
 
 	int exit_code = povm_execute(fd, stack, types);
+	if (exit_code == -42) {
+		exit_code = 0;
+	}
 
 	if (stdin != fd) {
 		if (close_fd) {

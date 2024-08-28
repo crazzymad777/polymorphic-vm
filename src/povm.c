@@ -117,7 +117,15 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
 			}
 
 			struct povm_state vm_callee = *vm;
-			int exit_code = povm_execute_command(&vm_callee, fd, s);
+
+			int exit_code = 0;
+			while (!feof(fd)) {;
+				exit_code = povm_execute_command(&vm_callee, fd, &s);
+				if (exit_code == -42) {
+					break;
+				}
+			}
+
 			if (exit_code == -42) {
 				exit_code = 0;
 			}

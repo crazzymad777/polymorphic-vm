@@ -14,6 +14,10 @@ int test_command_bxor_i64(int64_t a, int64_t b);
 int test_command_band_i64(int64_t a, int64_t b);
 int test_command_bor_i64(int64_t a, int64_t b);
 
+int test_command_ret();
+int test_command_halt_call();
+int test_command_halt_jump();
+
 #include <time.h>
 #include <stdlib.h>
 
@@ -50,9 +54,17 @@ static MunitResult test_command_dup(const MunitParameter params[], void* user_da
     return MUNIT_OK;
 }
 
+static MunitResult test_command_call(const MunitParameter params[], void* user_data) {
+    //srand(time(NULL));
+    test_command_ret();
+    test_command_halt_call();
+    test_command_halt_jump();
+    return MUNIT_OK;
+}
+
 static MunitTest test_suite_tests[] = {
   {
-    (char*) "test_command_add (add/sub/mul/div/rem)",
+    (char*) "test add/sub/mul/div/rem",
     test_command_add,
     NULL,
     NULL,
@@ -60,7 +72,7 @@ static MunitTest test_suite_tests[] = {
     NULL
   },
   {
-    (char*) "test_command_bxor (bitwise commands)",
+    (char*) "test bitwise commands",
     test_command_bxor,
     NULL,
     NULL,
@@ -68,8 +80,16 @@ static MunitTest test_suite_tests[] = {
     NULL
   },
   {
-    (char*) "test_command_dup (push/swap/dup)",
+    (char*) "test push/swap/dup",
     test_command_dup,
+    NULL,
+    NULL,
+    MUNIT_TEST_OPTION_NONE,
+    NULL
+  },
+  {
+    (char*) "test ret/call",
+    test_command_call,
     NULL,
     NULL,
     MUNIT_TEST_OPTION_NONE,
