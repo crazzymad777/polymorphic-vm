@@ -29,6 +29,7 @@ int povm_execute_custom_streams(FILE* fd, union udatum* stack, int32_t* types, s
 			return r;
 		}
 	}
+	fflush(vm.streams.stdout);
     return 0;
 }
 

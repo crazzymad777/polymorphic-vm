@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <povm.h>
 
-int run_vm(FILE *fd, int close_fd) {
-	const char* protect_field = "PROTECT2";
+int run_vm_custom_streams(FILE* fd, int close_fd, struct povm_io_streams streams) {
+    const char* protect_field = "PROTECT2";
 	char buffer[9] = {0};
 	int b = fread(buffer, 8, 1, fd);
 	if (b < 1) {
@@ -27,7 +27,7 @@ int run_vm(FILE *fd, int close_fd) {
 	union udatum stack[stack_size / 8];
 	int32_t types[stack_size / 8];
 
-	int exit_code = povm_execute(fd, stack, types);
+	int exit_code = povm_execute_custom_streams(fd, stack, types, &streams);
 	if (exit_code == -42) {
 		exit_code = 0;
 	}
@@ -38,4 +38,14 @@ int run_vm(FILE *fd, int close_fd) {
 		}
 	}
 	return exit_code;
+}
+
+int run_vm(FILE *fd, int close_fd) {
+    struct povm_io_streams streams = {
+		stdin,
+		stdout,
+		stderr
+	};
+
+    return run_vm_custom_streams(fd, close_fd, streams);
 }

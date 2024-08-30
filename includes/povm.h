@@ -26,6 +26,7 @@ struct povm_state {
 
 
 int povm_execute(FILE* fd, union udatum* stack, int32_t* types);
+int povm_execute_custom_streams(FILE* fd, union udatum* stack, int32_t* types, struct povm_io_streams* streams);
 
 #define COMMAND_PUSH_ROOT_STACK 0x01
 // implemented >>>>

@@ -27,6 +27,7 @@ void test_command_cmp_lt();
 
 int test_run_vm_empty_file();
 int test_run_vm_wrong_header_signature();
+int test_run_vm_simple_program();
 
 #include <time.h>
 #include <stdlib.h>
@@ -85,6 +86,7 @@ static MunitResult test_cmp(const MunitParameter params[], void* user_data) {
 static MunitResult test_run_vm(const MunitParameter params[], void* user_data) {
     test_run_vm_empty_file();
     test_run_vm_wrong_header_signature();
+    test_run_vm_simple_program();
     return MUNIT_OK;
 }
 
