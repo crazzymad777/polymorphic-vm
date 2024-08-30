@@ -4,12 +4,19 @@
 #include <datum.h>
 #include <stdio.h>
 
+struct povm_io_streams {
+    FILE* stdin;
+    FILE* stdout;
+    FILE* stderr;
+};
+
 struct povm_state {
     FILE* base_fd;
     void* base_pointer;
     FILE* fd;
     union udatum* stack;
     int32_t* types;
+    struct povm_io_streams streams;
 };
 
 // Debug features:

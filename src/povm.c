@@ -8,13 +8,14 @@ typedef struct result (*datum_operation)(struct datum, struct datum);
 
 int povm_execute_command(struct povm_state* vm, FILE* fd, void* s);
 
-int povm_execute(FILE* fd, union udatum* stack, int32_t* types) {
+int povm_execute_custom_streams(FILE* fd, union udatum* stack, int32_t* types, struct povm_io_streams* streams) {
     struct povm_state vm = {
         fd,
         stack,
         fd,
         stack,
-        types
+        types,
+		*streams
     };
 
     while (!feof(fd)) {
@@ -31,6 +32,16 @@ int povm_execute(FILE* fd, union udatum* stack, int32_t* types) {
     return 0;
 }
 
+int povm_execute(FILE* fd, union udatum* stack, int32_t* types) {
+	struct povm_io_streams streams = {
+		stdin,
+		stdout,
+		stderr
+	};
+
+    return povm_execute_custom_streams(fd, stack, types, &streams);
+}
+
 int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
 	struct povm_stack* ctx = s;
 	struct povm_stack_interface i = *ctx->interface;
@@ -44,9 +55,9 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
             //i.skip(s, -1);
 			i.put_datum(s, r.datum);
         } else {
-            fprintf(stderr, "Polymorhpic VM halt!\n");
-            fprintf(stderr, "Error! Datum error: %d\n", r.error_code);
-            fprintf(stderr, "Offset: 0x%x\n", ftell(fd));
+            fprintf(vm->streams.stderr, "Polymorhpic VM halt!\n");
+            fprintf(vm->streams.stderr, "Error! Datum error: %d\n", r.error_code);
+            fprintf(vm->streams.stderr, "Offset: 0x%x\n", ftell(fd));
             // How to behave properly?
         }
     }
@@ -56,9 +67,9 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
 
 	if (c != EOF) {
         if (c == COMMAND_PUSH_ROOT_STACK) {
-            fprintf(stderr, "Polymorhpic VM halt!\n");
-            fprintf(stderr, "Error! Not implemented opcode: 0x%x\n", c);
-            fprintf(stderr, "Offset: 0x%x\n", ftell(fd));
+            fprintf(vm->streams.stderr, "Polymorhpic VM halt!\n");
+            fprintf(vm->streams.stderr, "Error! Not implemented opcode: 0x%x\n", c);
+            fprintf(vm->streams.stderr, "Offset: 0x%x\n", ftell(fd));
             return ERROR_UNIMPLEMENTED_OPCODE;
         } else if (c == COMMAND_PUSH) {
             int type;
@@ -110,7 +121,7 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
 			int bytes = fread(&offset, 8, 1, fd);
 			if (bytes == 1) {
 				if (offset == 0) {
-					fprintf(stderr, "Polymorhpic VM halt!\n");
+					fprintf(vm->streams.stderr, "Polymorhpic VM halt!\n");
 					return -6;
 				}
 				fseek(fd, pos + offset, SEEK_SET);
@@ -142,7 +153,7 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
 			int bytes = fread(&offset, 8, 1, fd);
 			if (bytes == 1) {
 				if (offset == 0) {
-					fprintf(stderr, "Polymorhpic VM halt!\n");
+					fprintf(vm->streams.stderr, "Polymorhpic VM halt!\n");
 					return -6;
 				}
 				fseek(fd, pos + offset, SEEK_SET);
@@ -171,7 +182,7 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
 				struct datum datum = i.get_datum(s);
 				if ((datum.type != BOOLEAN && datum.i64 == 0) || (datum.type == BOOLEAN && datum.boolean)) {
 					if (offset == 0) {
-						fprintf(stderr, "Polymorhpic VM halt!\n");
+						fprintf(vm->streams.stderr, "Polymorhpic VM halt!\n");
 						return -6;
 					}
 					fseek(fd, pos + offset, SEEK_SET);
@@ -185,7 +196,7 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
 				struct datum datum = i.get_datum(s);
 				if ((datum.type && datum.i64 != 0) || (datum.type == BOOLEAN && !datum.boolean)) {
 					if (offset == 0) {
-						fprintf(stderr, "Polymorhpic VM halt!\n");
+						fprintf(vm->streams.stderr, "Polymorhpic VM halt!\n");
 						return -6;
 					}
 					fseek(fd, pos + offset, SEEK_SET);
@@ -198,7 +209,7 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
 			if (bytes == 1) {
 				if (i.get_value(s).i64 > 0) {
 					if (offset == 0) {
-						fprintf(stderr, "Polymorhpic VM halt!\n");
+						fprintf(vm->streams.stderr, "Polymorhpic VM halt!\n");
 						return -6;
 					}
 					fseek(fd, pos + offset, SEEK_SET);
@@ -211,7 +222,7 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
 			if (bytes == 1) {
 				if (i.get_value(s).i64 < 0) {
 					if (offset == 0) {
-						fprintf(stderr, "Polymorhpic VM halt!\n");
+						fprintf(vm->streams.stderr, "Polymorhpic VM halt!\n");
 						return -6;
 					}
 					fseek(fd, pos + offset, SEEK_SET);
@@ -224,7 +235,7 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
 			if (bytes == 1) {
 				if (i.get_value(s).i64 <= 0) {
 					if (offset == 0) {
-						fprintf(stderr, "Polymorhpic VM halt!\n");
+						fprintf(vm->streams.stderr, "Polymorhpic VM halt!\n");
 						return -6;
 					}
 					fseek(fd, pos + offset, SEEK_SET);
@@ -237,7 +248,7 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
 			if (bytes == 1) {
 				if (i.get_value(s).i64 >= 0) {
 					if (offset == 0) {
-						fprintf(stderr, "Polymorhpic VM halt!\n");
+						fprintf(vm->streams.stderr, "Polymorhpic VM halt!\n");
 						return -6;
 					}
 					fseek(fd, pos + offset, SEEK_SET);
@@ -246,11 +257,11 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
 		} else if (c == COMMAND_PRINT) {
             char buffer[32];
             datum_to_string(i.get_datum(s), buffer, 32);
-            printf("%s", buffer);
+            fprintf(vm->streams.stdout, "%s", buffer);
         } else if (c == COMMAND_DEBUG_PRINT) {
-            fprintf(stderr, "Offset: 0x%x\n", ftell(fd));
-            fprintf(stderr, "Base stack pointer: 0x%x\n", vm->base_pointer);
-            fprintf(stderr, "Stack pointer: 0x%x\n", vm->stack);
+            fprintf(vm->streams.stderr, "Offset: 0x%x\n", ftell(fd));
+            fprintf(vm->streams.stderr, "Base stack pointer: 0x%x\n", vm->base_pointer);
+            fprintf(vm->streams.stderr, "Stack pointer: 0x%x\n", vm->stack);
             char buffer[32];
             datum_to_string(i.get_datum(s), buffer, 32);
             printf("%s:%s\n", datum_get_type(i.get_type(s)), buffer);
@@ -262,7 +273,7 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
 			i.skip(s, 1);
             bool assertion = datum_op_equals(d0, d1);
             if (!assertion) {
-                fprintf(stderr, "Polymorhpic VM: assertion failed\n");
+                fprintf(vm->streams.stderr, "Polymorhpic VM: assertion failed\n");
                 return -10;
             }
         } else if (c == COMMAND_EQUALS) {
@@ -309,9 +320,9 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
 			}
 			i.put_datum(s, povm_datum_by_i64(COMPARE_RESULT, result));
         } else {
-			fprintf(stderr, "Polymorhpic VM halt!\n");
-			fprintf(stderr, "Error! Unknown opcode: 0x%x\n", c);
-            fprintf(stderr, "Offset: 0x%x\n", ftell(fd));
+			fprintf(vm->streams.stderr, "Polymorhpic VM halt!\n");
+			fprintf(vm->streams.stderr, "Error! Unknown opcode: 0x%x\n", c);
+            fprintf(vm->streams.stderr, "Offset: 0x%x\n", ftell(fd));
 			return ERROR_UNKNOWN_OPCODE;
 		}
     }

@@ -25,6 +25,9 @@ void test_command_cmp_not_eq();
 void test_command_cmp_gt();
 void test_command_cmp_lt();
 
+int test_run_vm_empty_file();
+int test_run_vm_wrong_header_signature();
+
 #include <time.h>
 #include <stdlib.h>
 
@@ -79,6 +82,12 @@ static MunitResult test_cmp(const MunitParameter params[], void* user_data) {
     return MUNIT_OK;
 }
 
+static MunitResult test_run_vm(const MunitParameter params[], void* user_data) {
+    test_run_vm_empty_file();
+    test_run_vm_wrong_header_signature();
+    return MUNIT_OK;
+}
+
 static MunitTest test_suite_tests[] = {
   {
     (char*) "test add/sub/mul/div/rem",
@@ -115,6 +124,14 @@ static MunitTest test_suite_tests[] = {
   {
     (char*) "test cmp",
     test_cmp,
+    NULL,
+    NULL,
+    MUNIT_TEST_OPTION_NONE,
+    NULL
+  },
+  {
+    (char*) "test run VM",
+    test_run_vm,
     NULL,
     NULL,
     MUNIT_TEST_OPTION_NONE,
