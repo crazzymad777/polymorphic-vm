@@ -28,4 +28,5 @@ int test_run_vm_simple_program() {
 
     munit_assert_int(run_vm_custom_streams(fd, 1, streams), ==, 0);
     munit_assert_string_equal(out_buffer, "0021");
+    fclose(fd_vm_out);
 }
