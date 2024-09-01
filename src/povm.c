@@ -1,6 +1,8 @@
 #include <povm-stack.h>
 #include <stdint.h>
 #include <limits.h>
+#include <stdlib.h> // free
+#include <ctype.h> // isspace
 #include <stdio.h>
 #include <povm.h>
 
@@ -320,7 +322,51 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
 				result |= COMPARE_RESULT_LESS;
 			}
 			i.put_datum(s, povm_datum_by_i64(COMPARE_RESULT, result));
-        } else {
+        } else if (c == COMMAND_READ) {
+			FILE* stream;
+			char *buf = NULL;
+			size_t len;
+
+			stream = open_memstream(&buf, &len);
+			if (stream == NULL) {
+				return -25;
+			}
+
+			while(!feof(vm->streams.stdin)) {
+				int byte = fgetc(vm->streams.stdin);
+
+				if (byte != -1) {
+					if (isspace(byte)) {
+						break;
+					}
+					fputc(byte, stream);
+				}
+			}
+			fflush(stream);
+			fclose(stream);
+
+			if (buf != NULL) {
+				//double d;
+				//sscanf(buf, "%le", &d);
+				//int64_t i64;
+				//sscanf(buf, "%ld", &i64);
+				free(buf);
+			}
+		} else if (c == COMMAND_FEED) {
+			int type;
+            int64_t value = 0;
+            int bytes = fread(&type, 4, 1, fd);
+            if (bytes == 1) {
+                int bytes = fread(&value, datum_type_sizeof(type), 1, vm->streams.stdin);
+                if (bytes == 1) {
+					i.skip(s, 1);
+					i.put_datum(ctx, povm_datum_by_i64(type, value));
+				} else {
+					i.skip(s, 1);
+					i.put_datum(ctx, povm_datum_by_i64(VOID, value));
+				}
+            }
+		} else {
 			fprintf(vm->streams.stderr, "Polymorhpic VM halt!\n");
 			fprintf(vm->streams.stderr, "Error! Unknown opcode: 0x%x\n", c);
             fprintf(vm->streams.stderr, "Offset: 0x%x\n", ftell(fd));
