@@ -1,6 +1,7 @@
 #include <povm-stack.h>
 #include <stdint.h>
 #include <limits.h>
+#include <string.h> // strcmp
 #include <stdlib.h> // free
 #include <ctype.h> // isspace
 #include <stdio.h>
@@ -346,10 +347,31 @@ int povm_execute_command(struct povm_state* vm, FILE* fd, void* s) {
 			fclose(stream);
 
 			if (buf != NULL) {
-				//double d;
-				//sscanf(buf, "%le", &d);
-				//int64_t i64;
-				//sscanf(buf, "%ld", &i64);
+				struct datum datum = datum_void();
+				double d;
+				int r = sscanf(buf, "%le", &d);
+				if (r > 0) {
+					datum = datum_f64(d);
+				}
+				int64_t i64;
+				r = sscanf(buf, "%ld", &i64);
+				if (r > 0) {
+					if (datum.type == VOID) {
+						datum = datum_i64(i64);
+					} else {
+						if (d == (double)i64) {
+							datum = datum_i64(i64);
+						}
+					}
+				}
+				if (strcmp("true", buf) == 0) {
+					datum = datum_bool(true);
+				}
+				if (strcmp("false", buf) == 0) {
+					datum = datum_bool(false);
+				}
+				i.skip(s, 1);
+				i.put_datum(ctx, povm_datum_by_i64(datum.type, datum.i64));
 				free(buf);
 			}
 		} else if (c == COMMAND_FEED) {
